@@ -2,6 +2,7 @@ import express, { Application, Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth";
 import mongoose from "mongoose";
+import { HttpException } from './exceptions/httpException';
 
 dotenv.config();
 
@@ -22,7 +23,15 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use("/auth", authRoutes);
 
 app.get("/", (req: Request, res: Response) => {
-  res.send(`test project setup ${process.env.MONGODB_URI}`);
+  res.send('Server running');
+});
+
+app.use((error: HttpException, req: Request, res: Response, next: NextFunction) => {
+  console.log(error);
+  const status = error.status || 500;
+  const message = error.message;
+  const data = error.data;
+  res.status(status).json({ message: message, data: data });
 });
 
 mongoose
