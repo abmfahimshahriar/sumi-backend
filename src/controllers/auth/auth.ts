@@ -4,6 +4,7 @@ import bcryptjs from "bcryptjs";
 import jsonwebtoken from "jsonwebtoken";
 import User from "../../models/auth/User";
 import dotenv from "dotenv";
+import { inputValidator } from "../../utility/validators/inputValidator";
 
 dotenv.config();
 
@@ -19,6 +20,29 @@ export const signup = async (
     const userExists = await User.findOne({ Email: email });
 
     if (!userExists) {
+      const inputs = [
+        {
+          fieldValue: email,
+          fieldName: "email",
+          validations: ["required"],
+          minLength: 8,
+          maxLength: 20,
+        },
+        {
+          fieldValue: password,
+          fieldName: "password",
+          validations: ["required", "minLength", "maxLength"],
+          minLength: 4,
+          maxLength: 10,
+        },
+      ];
+      const errorsObject = inputValidator(inputs);
+      if(errorsObject.hasError) {
+        return res.status(422).json({
+          IsSuccess: false,
+          Errors: errorsObject.errors,
+        });
+      }
       const hashedPw = await bcryptjs.hash(
         password,
         parseInt(process.env.PASSWORD_SALT as string)
@@ -79,6 +103,30 @@ export const login = async (
   let loggedInUser: IUser;
   let isEqualPassword: boolean;
   try {
+    const inputs = [
+      {
+        fieldValue: email,
+        fieldName: "email",
+        validations: ["required"],
+        minLength: 8,
+        maxLength: 20,
+      },
+      {
+        fieldValue: password,
+        fieldName: "password",
+        validations: ["required"],
+        minLength: 4,
+        maxLength: 10,
+      },
+    ];
+    const errorsObject = inputValidator(inputs);
+    if(errorsObject.hasError) {
+      return res.status(422).json({
+        IsSuccess: false,
+        Errors: errorsObject.errors,
+      });
+    }
+
     const user = await User.findOne({ Email: email });
     if (!user) {
       return res.status(422).json({
