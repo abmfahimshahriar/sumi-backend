@@ -51,6 +51,8 @@ export const signup = async (
         Name: "",
         Email: email,
         Password: hashedPw,
+        ProjectsCreated: [],
+        ProjectsInvolved: []
       });
       const result = await user.save();
 
