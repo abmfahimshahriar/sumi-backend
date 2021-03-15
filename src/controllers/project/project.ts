@@ -192,6 +192,54 @@ export const updateProject = async (
   }
 };
 
+export const deleteProject = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const projectId = req.params.projectId;
+
+  try {
+    const userId = getUserId(req);
+
+    const selectedProject = await Project.findById(projectId);
+    if (!selectedProject) {
+      return res.status(422).json({
+        IsSuccess: false,
+        Errors: ["Such project does not exists."],
+      });
+    } else {
+      if (selectedProject.CreatedBy !== userId) {
+        return res.status(401).json({
+          IsSuccess: false,
+          Errors: ["You can not delete this project"],
+        });
+      }
+
+      const result = await Project.findByIdAndRemove(projectId);
+
+      if (result) {
+        return res.status(201).json({
+          IsSuccess: true,
+          Result: {
+            ProjectId: result._id,
+          },
+        });
+      } else {
+        return res.status(422).json({
+          IsSuccess: false,
+          Errors: ["Could not delete the project"],
+        });
+      }
+    }
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
 const checkInputValidity = (
   projecName: string,
   startDate: Date,
