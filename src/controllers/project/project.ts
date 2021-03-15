@@ -21,7 +21,6 @@ export const createProject = async (
     if (authHeader) {
       const token = authHeader.split(" ")[1];
       userId = getUserId(token);
-      console.log(userId);
     } else {
       return res.status(422).json({
         IsSuccess: false,
