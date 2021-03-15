@@ -34,7 +34,10 @@ app.use(
     const status = error.status || 500;
     const message = error.message;
     const data = error.data;
-    res.status(status).json({ message: message, data: data });
+    res.status(status).json({
+      IsSuccess: false,
+      Errors: [message],
+    });
   }
 );
 

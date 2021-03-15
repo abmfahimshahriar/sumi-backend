@@ -16,7 +16,7 @@ export const createProject = async (
   const projectName = req.body.ProjectName;
   const startDate = req.body.StartDate;
   const endDate = req.body.EndDate;
-
+  const involvedUsers = req.body.InvolvedUsers;
   try {
     if (authHeader) {
       const token = authHeader.split(" ")[1];
@@ -35,13 +35,22 @@ export const createProject = async (
         Errors: errorsObject.errors,
       });
     }
-
+    const sameName = await Project.find({
+      ProjectName: projectName,
+      CreatedBy: userId,
+    });
+    if (sameName) {
+      return res.status(422).json({
+        IsSuccess: false,
+        Errors: ["A project with same name already exists for the user."],
+      });
+    }
     const project = new Project({
       ProjectName: projectName,
       StartDate: startDate,
       EndDate: endDate,
       CreatedBy: userId,
-      InvolvedUsers: [userId],
+      InvolvedUsers: [userId, ...involvedUsers],
       TotalStoryPoints: 0,
       CompletedStoryPoints: 0,
     });
