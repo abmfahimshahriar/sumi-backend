@@ -11,22 +11,12 @@ export const createProject = async (
   res: Response,
   next: NextFunction
 ) => {
-  const authHeader = req.get("Authorization");
-  let userId = null;
   const projectName = req.body.ProjectName;
   const startDate = req.body.StartDate;
   const endDate = req.body.EndDate;
   const involvedUsers = req.body.InvolvedUsers;
   try {
-    if (authHeader) {
-      const token = authHeader.split(" ")[1];
-      userId = getUserId(token);
-    } else {
-      return res.status(422).json({
-        IsSuccess: false,
-        Errors: ["User is not authenticated"],
-      });
-    }
+    const userId = getUserId(req);
 
     const errorsObject = checkInputValidity(projectName, startDate, endDate);
     if (errorsObject.hasError) {
@@ -39,7 +29,7 @@ export const createProject = async (
       ProjectName: projectName,
       CreatedBy: userId,
     });
-    if (sameName) {
+    if (sameName.length > 0) {
       return res.status(422).json({
         IsSuccess: false,
         Errors: ["A project with same name already exists for the user."],
@@ -65,11 +55,81 @@ export const createProject = async (
         },
       });
     } else {
-      return res.status(201).json({
+      return res.status(422).json({
         IsSuccess: false,
         Errors: ["Could not create a user"],
       });
     }
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+export const getMyCreatedProjects = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = getUserId(req);
+
+    const myCreatedProjects = await Project.find({CreatedBy: userId});
+    const res2 = await Project.find({InvolvedUsers: {$eq: userId}, CreatedBy: {$ne: userId}});
+
+    if(myCreatedProjects.length > 0) {
+      return res.status(201).json({
+        IsSuccess: true,
+        Result: {
+          myCreatedProjects: myCreatedProjects,
+        },
+      });
+    }
+    else{
+      return res.status(422).json({
+        IsSuccess: false,
+        Errors: ["You currently do not have any created projects"],
+      });
+    }
+    
+
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+
+export const getMyInvolvedProjects = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = getUserId(req);
+
+    const myInvolvedProjects = await Project.find({InvolvedUsers: {$eq: userId}, CreatedBy: {$ne: userId}});
+
+    if(myInvolvedProjects.length > 0) {
+      return res.status(201).json({
+        IsSuccess: true,
+        Result: {
+          myInvolvedProjects: myInvolvedProjects,
+        },
+      });
+    }
+    else{
+      return res.status(422).json({
+        IsSuccess: false,
+        Errors: ["You are currently not involved in any other projects"],
+      });
+    }
+    
+
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
