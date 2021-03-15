@@ -20,24 +20,8 @@ export const signup = async (
     const userExists = await User.findOne({ Email: email });
 
     if (!userExists) {
-      const inputs = [
-        {
-          fieldValue: email,
-          fieldName: "email",
-          validations: ["required"],
-          minLength: 8,
-          maxLength: 20,
-        },
-        {
-          fieldValue: password,
-          fieldName: "password",
-          validations: ["required", "minLength", "maxLength"],
-          minLength: 4,
-          maxLength: 10,
-        },
-      ];
-      const errorsObject = inputValidator(inputs);
-      if(errorsObject.hasError) {
+      const errorsObject = checkInputValidity(email, password);
+      if (errorsObject.hasError) {
         return res.status(422).json({
           IsSuccess: false,
           Errors: errorsObject.errors,
@@ -52,7 +36,7 @@ export const signup = async (
         Email: email,
         Password: hashedPw,
         ProjectsCreated: [],
-        ProjectsInvolved: []
+        ProjectsInvolved: [],
       });
       const result = await user.save();
 
@@ -122,7 +106,7 @@ export const login = async (
       },
     ];
     const errorsObject = inputValidator(inputs);
-    if(errorsObject.hasError) {
+    if (errorsObject.hasError) {
       return res.status(422).json({
         IsSuccess: false,
         Errors: errorsObject.errors,
@@ -170,4 +154,26 @@ export const login = async (
     }
     next(err);
   }
+};
+
+const checkInputValidity = (email: string, password: Date) => {
+  const inputs = [
+    {
+      fieldValue: email,
+      fieldName: "email",
+      validations: ["required"],
+      minLength: 8,
+      maxLength: 20,
+    },
+    {
+      fieldValue: password,
+      fieldName: "password",
+      validations: ["required", "minLength", "maxLength"],
+      minLength: 4,
+      maxLength: 10,
+    },
+  ];
+
+  const errorsObject = inputValidator(inputs);
+  return errorsObject;
 };
