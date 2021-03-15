@@ -57,7 +57,7 @@ export const createProject = async (
     } else {
       return res.status(422).json({
         IsSuccess: false,
-        Errors: ["Could not create a user"],
+        Errors: ["Could not create a project"],
       });
     }
   } catch (err) {
@@ -76,25 +76,25 @@ export const getMyCreatedProjects = async (
   try {
     const userId = getUserId(req);
 
-    const myCreatedProjects = await Project.find({CreatedBy: userId});
-    const res2 = await Project.find({InvolvedUsers: {$eq: userId}, CreatedBy: {$ne: userId}});
+    const myCreatedProjects = await Project.find({ CreatedBy: userId });
+    const res2 = await Project.find({
+      InvolvedUsers: { $eq: userId },
+      CreatedBy: { $ne: userId },
+    });
 
-    if(myCreatedProjects.length > 0) {
+    if (myCreatedProjects.length > 0) {
       return res.status(201).json({
         IsSuccess: true,
         Result: {
           myCreatedProjects: myCreatedProjects,
         },
       });
-    }
-    else{
+    } else {
       return res.status(422).json({
         IsSuccess: false,
         Errors: ["You currently do not have any created projects"],
       });
     }
-    
-
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -102,7 +102,6 @@ export const getMyCreatedProjects = async (
     next(err);
   }
 };
-
 
 export const getMyInvolvedProjects = async (
   req: Request,
@@ -112,24 +111,79 @@ export const getMyInvolvedProjects = async (
   try {
     const userId = getUserId(req);
 
-    const myInvolvedProjects = await Project.find({InvolvedUsers: {$eq: userId}, CreatedBy: {$ne: userId}});
+    const myInvolvedProjects = await Project.find({
+      InvolvedUsers: { $eq: userId },
+      CreatedBy: { $ne: userId },
+    });
 
-    if(myInvolvedProjects.length > 0) {
+    if (myInvolvedProjects.length > 0) {
       return res.status(201).json({
         IsSuccess: true,
         Result: {
           myInvolvedProjects: myInvolvedProjects,
         },
       });
-    }
-    else{
+    } else {
       return res.status(422).json({
         IsSuccess: false,
         Errors: ["You are currently not involved in any other projects"],
       });
     }
-    
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
 
+export const updateProject = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const projectId = req.params.projectId;
+  const projectName = req.body.ProjectName;
+  const startDate = req.body.StartDate;
+  const endDate = req.body.EndDate;
+  const involvedUsers = req.body.InvolvedUsers;
+  try {
+    const userId = getUserId(req);
+
+    const selectedProject = await Project.findById(projectId);
+    if (!selectedProject) {
+      return res.status(422).json({
+        IsSuccess: false,
+        Errors: ["Such project does not exists."],
+      });
+    } else {
+      if (selectedProject.CreatedBy !== userId) {
+        return res.status(401).json({
+          IsSuccess: false,
+          Errors: ["You can not update the project"],
+        });
+      }
+      selectedProject.ProjectName = projectName;
+      selectedProject.StartDate = startDate;
+      selectedProject.EndDate = endDate;
+      selectedProject.InvolvedUsers = [userId, ...involvedUsers];
+
+      const result = await selectedProject.save();
+
+      if (result) {
+        return res.status(201).json({
+          IsSuccess: true,
+          Result: {
+            ProjectId: result._id,
+          },
+        });
+      } else {
+        return res.status(422).json({
+          IsSuccess: false,
+          Errors: ["Could not update the project"],
+        });
+      }
+    }
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
