@@ -83,19 +83,13 @@ export const getMyCreatedProjects = async (
       CreatedBy: { $ne: userId },
     });
 
-    if (myCreatedProjects.length > 0) {
-      return res.status(201).json({
-        IsSuccess: true,
-        Result: {
-          myCreatedProjects: myCreatedProjects,
-        },
-      });
-    } else {
-      return res.status(422).json({
-        IsSuccess: false,
-        Errors: ["You currently do not have any created projects"],
-      });
-    }
+    return res.status(201).json({
+      IsSuccess: true,
+      Result: {
+        myCreatedProjects: myCreatedProjects,
+      },
+    });
+
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -117,19 +111,13 @@ export const getMyInvolvedProjects = async (
       CreatedBy: { $ne: userId },
     });
 
-    if (myInvolvedProjects.length > 0) {
-      return res.status(201).json({
-        IsSuccess: true,
-        Result: {
-          myInvolvedProjects: myInvolvedProjects,
-        },
-      });
-    } else {
-      return res.status(422).json({
-        IsSuccess: false,
-        Errors: ["You are currently not involved in any other projects"],
-      });
-    }
+    return res.status(201).json({
+      IsSuccess: true,
+      Result: {
+        myInvolvedProjects: myInvolvedProjects,
+      },
+    });
+    
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
