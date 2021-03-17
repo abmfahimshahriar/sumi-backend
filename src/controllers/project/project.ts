@@ -3,6 +3,7 @@ import Project from "../../models/project/Project";
 import dotenv from "dotenv";
 import { inputValidator } from "../../utility/validators/inputValidator";
 import { getUserId } from "./helper_functions/helperFunctions";
+import User from "../../models/auth/User";
 
 dotenv.config();
 
@@ -232,6 +233,37 @@ export const deleteProject = async (
         });
       }
     }
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+export const getUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const searchText = req.body.SearchText;
+
+  try {
+    let users;
+
+    users = await User.find({
+      Email: {
+        $regex: searchText,
+        $options: "i",
+      },
+    }).select("Email");
+
+    return res.status(201).json({
+      IsSuccess: true,
+      Result: {
+        Users: users,
+      },
+    });
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
