@@ -244,6 +244,14 @@ export const getUsers = async (
   const searchText = req.body.SearchText;
 
   try {
+    if(searchText.length === 0) {
+      return res.status(201).json({
+        IsSuccess: true,
+        Result: {
+          Users: [],
+        },
+      });
+    }
     let users;
 
     let regex = new RegExp(searchText, "i");
