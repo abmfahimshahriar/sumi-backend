@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import Project from "../../models/project/Project";
+import Project, { IInvolvedUser } from "../../models/project/Project";
 import dotenv from "dotenv";
 import { inputValidator } from "../../utility/validators/inputValidator";
 import { getUserId } from "./helper_functions/helperFunctions";
@@ -15,7 +15,7 @@ export const createProject = async (
   const projectName = req.body.ProjectName;
   const startDate = req.body.StartDate;
   const endDate = req.body.EndDate;
-  const involvedUsers = req.body.InvolvedUsers;
+  let involvedUsers = req.body.InvolvedUsers;
   try {
     const userId = getUserId(req);
     const user = await User.findById(userId).select("Email Name");
@@ -37,6 +37,7 @@ export const createProject = async (
         Errors: ["A project with same name already exists for the user."],
       });
     }
+    involvedUsers = filterUsers(user?._id, involvedUsers);
     const project = new Project({
       ProjectName: projectName,
       StartDate: startDate,
@@ -139,9 +140,10 @@ export const updateProject = async (
   const projectName = req.body.ProjectName;
   const startDate = req.body.StartDate;
   const endDate = req.body.EndDate;
-  const involvedUsers = req.body.InvolvedUsers;
+  let involvedUsers = req.body.InvolvedUsers;
   try {
     const userId = getUserId(req);
+    const user = await User.findById(userId).select("Email Name");
 
     const selectedProject = await Project.findById(projectId);
     if (!selectedProject) {
@@ -156,10 +158,11 @@ export const updateProject = async (
           Errors: ["You can not update the project"],
         });
       }
+      involvedUsers = filterUsers(user?._id, involvedUsers);
       selectedProject.ProjectName = projectName;
       selectedProject.StartDate = startDate;
       selectedProject.EndDate = endDate;
-      selectedProject.InvolvedUsers = [userId, ...involvedUsers];
+      selectedProject.InvolvedUsers = [user, ...involvedUsers];
 
       const result = await selectedProject.save();
 
@@ -260,6 +263,11 @@ export const getUsers = async (
     next(err);
   }
 };
+
+const filterUsers = (filterUserId: string, usersArray: IInvolvedUser[]) => {
+  const filteredUser =  usersArray.filter(item => item._id != filterUserId);
+  return filteredUser;
+}
 
 const checkInputValidity = (
   projecName: string,

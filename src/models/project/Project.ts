@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
-interface IInvolvedUser {
+export interface IInvolvedUser {
+  _id?: string;
   Name: string;
   Email: string;
 }
