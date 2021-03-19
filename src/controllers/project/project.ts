@@ -90,7 +90,6 @@ export const getMyCreatedProjects = async (
         myCreatedProjects: myCreatedProjects,
       },
     });
-
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -118,7 +117,6 @@ export const getMyInvolvedProjects = async (
         myInvolvedProjects: myInvolvedProjects,
       },
     });
-    
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -239,14 +237,11 @@ export const getUsers = async (
 
   try {
     let users;
-
+    
+    let regex = new RegExp(searchText, "i");
     users = await User.find({
-      Email: {
-        $regex: searchText,
-        $options: "i",
-      },
+      $and: [{ $or: [{ Email: regex }, { Name: regex }] }],
     }).select("Email Name");
-
     return res.status(201).json({
       IsSuccess: true,
       Result: {
