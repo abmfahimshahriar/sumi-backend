@@ -13,6 +13,7 @@ export const signup = async (
   res: Response,
   next: NextFunction
 ) => {
+  const name = req.body.Name;
   const email = req.body.Email;
   const password = req.body.Password;
 
@@ -20,7 +21,7 @@ export const signup = async (
     const userExists = await User.findOne({ Email: email });
 
     if (!userExists) {
-      const errorsObject = checkInputValidity(email, password);
+      const errorsObject = checkInputValidity(name, email, password);
       if (errorsObject.hasError) {
         return res.status(422).json({
           IsSuccess: false,
@@ -32,7 +33,7 @@ export const signup = async (
         parseInt(process.env.PASSWORD_SALT as string)
       );
       const user = new User({
-        Name: "",
+        Name: name,
         Email: email,
         Password: hashedPw,
         ProjectsCreated: [],
@@ -156,8 +157,15 @@ export const login = async (
   }
 };
 
-const checkInputValidity = (email: string, password: Date) => {
+const checkInputValidity = (name:string, email: string, password: Date) => {
   const inputs = [
+    {
+      fieldValue: name,
+      fieldName: "name",
+      validations: ["required"],
+      minLength: 8,
+      maxLength: 20,
+    },
     {
       fieldValue: email,
       fieldName: "email",

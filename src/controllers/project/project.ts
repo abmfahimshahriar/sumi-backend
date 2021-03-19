@@ -18,6 +18,7 @@ export const createProject = async (
   const involvedUsers = req.body.InvolvedUsers;
   try {
     const userId = getUserId(req);
+    const user = await User.findById(userId).select("Email Name");
 
     const errorsObject = checkInputValidity(projectName, startDate, endDate);
     if (errorsObject.hasError) {
@@ -41,7 +42,7 @@ export const createProject = async (
       StartDate: startDate,
       EndDate: endDate,
       CreatedBy: userId,
-      InvolvedUsers: [userId, ...involvedUsers],
+      InvolvedUsers: [user, ...involvedUsers],
       TotalStoryPoints: 0,
       CompletedStoryPoints: 0,
     });
@@ -244,7 +245,7 @@ export const getUsers = async (
         $regex: searchText,
         $options: "i",
       },
-    }).select("Email");
+    }).select("Email Name");
 
     return res.status(201).json({
       IsSuccess: true,
