@@ -79,10 +79,10 @@ export const getMyCreatedProjects = async (
     const userId = getUserId(req);
 
     const myCreatedProjects = await Project.find({ CreatedBy: userId });
-    const res2 = await Project.find({
-      InvolvedUsers: { $eq: userId },
-      CreatedBy: { $ne: userId },
-    });
+    // const res2 = await Project.find({
+    //   InvolvedUsers: { $eq: userId },
+    //   CreatedBy: { $ne: userId },
+    // });
 
     return res.status(201).json({
       IsSuccess: true,
@@ -106,8 +106,13 @@ export const getMyInvolvedProjects = async (
   try {
     const userId = getUserId(req);
 
+    // const myInvolvedProjects = await Project.find({
+    //   InvolvedUsers: { $eq: userId },
+    //   CreatedBy: { $ne: userId },
+    // });
+
     const myInvolvedProjects = await Project.find({
-      InvolvedUsers: { $eq: userId },
+      $or: [{ InvolvedUsers: { $elemMatch: { _id: userId } } }],
       CreatedBy: { $ne: userId },
     });
 
@@ -237,7 +242,7 @@ export const getUsers = async (
 
   try {
     let users;
-    
+
     let regex = new RegExp(searchText, "i");
     users = await User.find({
       $and: [{ $or: [{ Email: regex }, { Name: regex }] }],

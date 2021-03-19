@@ -55,6 +55,7 @@ export const signup = async (
         return res.status(201).json({
           IsSuccess: true,
           Result: {
+            Username: result.Name,
             UserId: result._id,
             Token: token,
           },
@@ -144,6 +145,7 @@ export const login = async (
       return res.status(200).json({
         IsSuccess: true,
         Result: {
+          Username: loggedInUser.Name,
           UserId: loggedInUser._id,
           Token: token,
         },
