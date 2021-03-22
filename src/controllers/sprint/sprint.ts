@@ -166,11 +166,14 @@ export const updateSprint = async (
         IsSuccess: false,
         Errors: ["Such sprint does not exists."],
       });
-    } 
+    }
     selectedSprint.SprintName = sprintName;
     selectedSprint.StartDate = startDate;
     selectedSprint.EndDate = endDate;
-    selectedSprint.TaskBuckets = [...selectedSprint.TaskBuckets, ...taskBuckets];
+    selectedSprint.TaskBuckets = [
+      ...selectedSprint.TaskBuckets,
+      ...taskBuckets,
+    ];
 
     const result = await selectedSprint.save();
 
@@ -186,6 +189,61 @@ export const updateSprint = async (
         IsSuccess: false,
         Errors: ["Could not update the sprint"],
       });
+    }
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+export const deleteSprint = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const projectId = req.body.ProjectId;
+  const sprintId = req.body.SprintId;
+
+  try {
+    const userId = getUserId(req);
+
+    const selectedProject = await Project.findById(projectId);
+    if (!selectedProject) {
+      return res.status(422).json({
+        IsSuccess: false,
+        Errors: ["Such project does not exists."],
+      });
+    } else {
+      if (selectedProject.CreatedBy !== userId) {
+        return res.status(401).json({
+          IsSuccess: false,
+          Errors: ["You can not delete this sprint"],
+        });
+      }
+      const selectedSprint = await Sprint.findById(sprintId);
+      if (!selectedSprint) {
+        return res.status(404).json({
+          IsSuccess: false,
+          Errors: ["Such sprint does not exists."],
+        });
+      }
+      const result = await Sprint.findByIdAndRemove(sprintId);
+
+      if (result) {
+        return res.status(201).json({
+          IsSuccess: true,
+          Result: {
+            ProjectId: result._id,
+          },
+        });
+      } else {
+        return res.status(422).json({
+          IsSuccess: false,
+          Errors: ["Could not delete the sprint"],
+        });
+      }
     }
   } catch (err) {
     if (!err.statusCode) {
