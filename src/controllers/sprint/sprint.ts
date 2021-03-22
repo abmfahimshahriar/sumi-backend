@@ -130,8 +130,70 @@ export const getSprints = async (
   }
 };
 
+export const updateSprint = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const projectId = req.body.ProjectId;
+  const sprintId = req.body.SprintId;
+  const sprintName = req.body.SprintName;
+  const startDate = req.body.StartDate;
+  const endDate = req.body.EndDate;
+  const taskBuckets = req.body.TaskBuckets;
+  try {
+    const userId = getUserId(req);
+    const user = await User.findById(userId).select("Email Name");
 
+    const selectedProject = await Project.findById(projectId);
+    if (!selectedProject) {
+      return res.status(422).json({
+        IsSuccess: false,
+        Errors: ["Such project does not exists."],
+      });
+    } else {
+      if (selectedProject.CreatedBy !== userId) {
+        return res.status(401).json({
+          IsSuccess: false,
+          Errors: ["You can not update the sprint"],
+        });
+      }
+    }
 
+    const selectedSprint = await Sprint.findById(sprintId);
+    if (!selectedSprint) {
+      return res.status(422).json({
+        IsSuccess: false,
+        Errors: ["Such sprint does not exists."],
+      });
+    } 
+    selectedSprint.SprintName = sprintName;
+    selectedSprint.StartDate = startDate;
+    selectedSprint.EndDate = endDate;
+    selectedSprint.TaskBuckets = [...selectedSprint.TaskBuckets, ...taskBuckets];
+
+    const result = await selectedSprint.save();
+
+    if (result) {
+      return res.status(201).json({
+        IsSuccess: true,
+        Result: {
+          ProjectId: result._id,
+        },
+      });
+    } else {
+      return res.status(422).json({
+        IsSuccess: false,
+        Errors: ["Could not update the sprint"],
+      });
+    }
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
 
 const checkInputValidity = (
   projectId: string,
