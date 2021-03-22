@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import Project, { IInvolvedUser } from "../../models/project/Project";
 import dotenv from "dotenv";
 import { inputValidator } from "../../utility/validators/inputValidator";
-import { getUserId } from "./helper_functions/helperFunctions";
+import { getUserId } from "../helper_functions/helperFunctions";
 import User from "../../models/auth/User";
 
 dotenv.config();
@@ -285,7 +285,7 @@ const checkInputValidity = (
   const inputs = [
     {
       fieldValue: projecName,
-      fieldName: "projec name",
+      fieldName: "project name",
       validations: ["required"],
       minLength: 8,
       maxLength: 20,
