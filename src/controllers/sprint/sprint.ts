@@ -18,6 +18,8 @@ export const createSprint = async (
   const startDate = req.body.StartDate;
   const endDate = req.body.EndDate;
   let taskBuckets = req.body.TaskBuckets;
+  const startBucket = req.body.StartBucket;
+  const endBucket = req.body.EndBucket;
   try {
     const userId = getUserId(req);
     const user = await User.findById(userId).select("Email Name");
@@ -63,6 +65,8 @@ export const createSprint = async (
       TotalStoryPoints: 0,
       CompletedStoryPoints: 0,
       TaskBuckets: [...taskBuckets],
+      StartBucket: startBucket,
+      EndBucket: endBucket,
     });
 
     const result = await sprint.save();
