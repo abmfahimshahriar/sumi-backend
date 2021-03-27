@@ -156,6 +156,7 @@ export const getTasks = async (
       return res.status(200).json({
         IsSuccess: true,
         Result: {
+          Sprint: sprint,
           Tasks: tasks,
         },
       });
