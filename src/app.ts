@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth";
 import projectRoutes from "./routes/project";
 import sprintRoutes from "./routes/sprint";
+import taskRoutes from "./routes/task";
+
 import mongoose from "mongoose";
 import { HttpException } from "./exceptions/httpException";
 
@@ -25,6 +27,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use("/auth", authRoutes);
 app.use("/project", projectRoutes);
 app.use("/sprint", sprintRoutes);
+app.use("/task", taskRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Server running");

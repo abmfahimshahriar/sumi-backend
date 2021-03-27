@@ -120,7 +120,7 @@ export const getSprints = async (
     }
     const sprints = await Sprint.find({ ProjectId: projectId });
 
-    return res.status(201).json({
+    return res.status(200).json({
       IsSuccess: true,
       Result: {
         Sprints: sprints,
