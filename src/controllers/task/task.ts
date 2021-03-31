@@ -240,6 +240,85 @@ export const updateTask = async (
   }
 };
 
+export const deleteTask = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const projectId = req.body.ProjectId;
+  const sprintId = req.body.SprintId;
+  const taskId = req.body.TaskId;
+  try {
+    const userId = getUserId(req);
+
+    const project = await Project.findById(projectId);
+    if (project) {
+      const involvedUsers = project.InvolvedUsers;
+      const currentUser = involvedUsers.find((item) => item._id == userId);
+      if (!currentUser) {
+        return res.status(401).json({
+          IsSuccess: false,
+          Errors: ["You can not delete task under this project"],
+        });
+      }
+    } else {
+      return res.status(422).json({
+        IsSuccess: false,
+        Errors: ["No project found"],
+      });
+    }
+    const sprint = await Sprint.findById(sprintId);
+    if (!sprint) {
+      return res.status(422).json({
+        IsSuccess: false,
+        Errors: ["No sprint found"],
+      });
+    }
+
+    const result = await Task.findByIdAndRemove(taskId);
+
+    if (!result) {
+      return res.status(422).json({
+        IsSuccess: false,
+        Errors: ["Such task does not exists."],
+      });
+    }
+
+    if (result) {
+      if (result.IsDone) {
+        project.CompletedStoryPoints =
+          project.CompletedStoryPoints - result.StoryPoints;
+        sprint.CompletedStoryPoints =
+          sprint.CompletedStoryPoints - result.StoryPoints;
+      }
+      project.TotalStoryPoints = project.TotalStoryPoints - result.StoryPoints;
+      sprint.TotalStoryPoints = sprint.TotalStoryPoints - result.StoryPoints;
+      const res1 = await project.save();
+      const res2 = await sprint.save();
+      // const res1 = updateSprintTotalStoryPoints(sprintId);
+      // const res2 = updateProjectTotalStoryPoints(projectId);
+      if (res1 && res2) {
+        return res.status(201).json({
+          IsSuccess: true,
+          Result: {
+            TaskId: result._id,
+          },
+        });
+      }
+    } else {
+      return res.status(422).json({
+        IsSuccess: false,
+        Errors: ["Could not delete the task"],
+      });
+    }
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
 export const getTasks = async (
   req: Request,
   res: Response,
