@@ -1,4 +1,4 @@
-import { createTask, getTasks, changeBucket, updateTask, deleteTask, createComment } from './../controllers/task/task';
+import { createTask, getTasks, changeBucket, updateTask, deleteTask, createComment, getComments } from './../controllers/task/task';
 import express from "express";
 import { authCheck } from "../middleware/authCheck";
 
@@ -10,5 +10,5 @@ router.put("/updateTask", authCheck, updateTask);
 router.post("/deleteTask", authCheck, deleteTask);
 router.post("/bucketChange", authCheck, changeBucket);
 router.post("/createComment", authCheck, createComment);
-router.post("/getComments", authCheck, createComment);
+router.post("/getComments", authCheck, getComments);
 export default router;
