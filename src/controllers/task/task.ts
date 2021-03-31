@@ -130,6 +130,116 @@ export const createTask = async (
   }
 };
 
+export const updateTask = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const projectId = req.body.ProjectId;
+  const sprintId = req.body.SprintId;
+  const taskId = req.body.TaskId;
+  const taskName = req.body.TaskName;
+  const taskDescription = req.body.TaskDescription;
+  const startDate = req.body.StartDate;
+  const endDate = req.body.EndDate;
+  const storyPoints = req.body.StoryPoints;
+  const assignee = req.body.Assignee;
+  try {
+    const userId = getUserId(req);
+
+    // const errorsObject = checkInputValidity(
+    //   projectId,
+    //   sprintid,
+    //   taskName,
+    //   sprintName,
+    //   startDate,
+    //   endDate
+    // );
+    // if (errorsObject.hasError) {
+    //   return res.status(422).json({
+    //     IsSuccess: false,
+    //     Errors: errorsObject.errors,
+    //   });
+    // }
+
+    const project = await Project.findById(projectId);
+    if (project) {
+      const involvedUsers = project.InvolvedUsers;
+      const currentUser = involvedUsers.find((item) => item._id == userId);
+      if (!currentUser) {
+        return res.status(401).json({
+          IsSuccess: false,
+          Errors: ["You can not update task under this project"],
+        });
+      }
+    } else {
+      return res.status(422).json({
+        IsSuccess: false,
+        Errors: ["No project found"],
+      });
+    }
+    const sprint = await Sprint.findById(sprintId);
+    if (!sprint) {
+      return res.status(422).json({
+        IsSuccess: false,
+        Errors: ["No sprint found"],
+      });
+    }
+
+    const task = await Task.findById(taskId);
+    if (!task) {
+      return res.status(422).json({
+        IsSuccess: false,
+        Errors: ["Such task does not exists."],
+      });
+    }
+    const prevStoryPoints = task.StoryPoints;
+    task.TaskName = taskName;
+    task.TaskDescription = taskDescription;
+    task.StartDate = startDate;
+    task.EndDate = endDate;
+    task.StoryPoints = storyPoints;
+    task.Assignee = assignee;
+
+    const result = await task.save();
+
+    if (result) {
+      if (task.IsDone) {
+        project.CompletedStoryPoints =
+          project.CompletedStoryPoints + storyPoints - prevStoryPoints;
+        sprint.CompletedStoryPoints =
+          sprint.CompletedStoryPoints + storyPoints - prevStoryPoints;
+      }
+      project.TotalStoryPoints =
+        project.TotalStoryPoints + storyPoints - prevStoryPoints;
+      sprint.TotalStoryPoints =
+        sprint.TotalStoryPoints + storyPoints - prevStoryPoints;
+      const res1 = await project.save();
+      const res2 = await sprint.save();
+      // const res1 = updateSprintTotalStoryPoints(sprintId);
+      // const res2 = updateProjectTotalStoryPoints(projectId);
+      if (res1 && res2) {
+        return res.status(201).json({
+          IsSuccess: true,
+          Result: {
+            TaskId: result._id,
+          },
+        });
+      }
+    } else {
+      return res.status(422).json({
+        IsSuccess: false,
+        Errors: ["Could not update the task"],
+      });
+    }
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
 export const getTasks = async (
   req: Request,
   res: Response,
