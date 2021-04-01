@@ -472,11 +472,11 @@ export const createComment = async (
   const sprintId = req.body.SprintId;
   const taskId = req.body.TaskId;
   const commentContent = req.body.CommentContent;
-  const commenter = req.body.Commenter;
+  // const commenter = req.body.Commenter;
 
   try {
     const userId = getUserId(req);
-
+    const user = await User.findById(userId).select("Email Name");
     // const errorsObject = checkInputValidity(
     //   projectId,
     //   sprintid,
@@ -530,7 +530,7 @@ export const createComment = async (
       SprintId: sprintId,
       TaskId: taskId,
       CommentContent: commentContent,
-      Commenter: commenter,
+      Commenter: user,
       CommentedAt: new Date().toISOString(),
     });
 
