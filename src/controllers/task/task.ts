@@ -330,6 +330,10 @@ export const getTasks = async (
   const sprintId = req.params.sprintId;
   const sprint = await Sprint.findById(sprintId);
   if (sprint) {
+    const tempTaskBuckets = sprint.TaskBuckets.filter(item => item.TaskBucketId != sprint.EndBucket);
+    const endTaskBucket = sprint.TaskBuckets.find(item => item.TaskBucketId == sprint.EndBucket);
+    if (endTaskBucket) tempTaskBuckets.push(endTaskBucket);
+    sprint.TaskBuckets = [...tempTaskBuckets];
     const project = await Project.findById(sprint.ProjectId);
     if (project) {
       const involvedUsers = project.InvolvedUsers;
