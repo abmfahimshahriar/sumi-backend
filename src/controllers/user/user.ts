@@ -90,12 +90,16 @@ export const getUserDetails = async (
 ) => {
   try {
     const userId = getUserId(req);
-    const user = await User.findById(userId).select("Email Name ProfileImageUrl");
+    const user = await User.findById(userId).select(
+      "Email Name ProfileImageUrl"
+    );
 
     if (user) {
       return res.status(200).json({
         IsSuccess: true,
-        UserDetails: user,
+        Result: {
+          UserDetails: user,
+        },
       });
     } else {
       return res.status(422).json({
