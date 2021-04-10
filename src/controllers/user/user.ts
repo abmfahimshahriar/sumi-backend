@@ -21,29 +21,33 @@ export const updateUser = async (
 
     if (user) {
       if (user.ProfileImageId) {
-        cloudinary.v2.uploader.destroy(
-          user.ProfileImageId,
-          function (error, result) {
+        cloudinary.v2.uploader
+          .destroy(user.ProfileImageId)
+          .then(function (result) {
             console.log("image deleted");
-            console.log(result, error);
-          }
-        );
+            console.log(result);
+          })
+          .catch(function (error) {
+            console.log("error occured while deleting");
+            console.log(error);
+          });
       }
 
-      await cloudinary.v2.uploader.upload(
-        imageUrl,
-        { tags: "profile_picture" },
-        function (err, image) {
-          if (err) {
-            console.log(err);
-          }
+      await cloudinary.v2.uploader
+        .upload(imageUrl, {
+          tags: "profile_picture",
+        })
+        .then(function (image) {
           if (image) {
             console.log("image uploaded");
             uploadedImageUrl = image.url;
             uploadImageId = image.public_id;
           }
-        }
-      );
+        })
+        .catch(function (error) {
+          console.log("error occured while uploading");
+          console.log(error);
+        });
       clearImage(imageUrl);
       user.Name = userName;
       user.Email = userEmail;
