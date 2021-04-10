@@ -83,6 +83,34 @@ export const updateUser = async (
   }
 };
 
+export const getUserDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = getUserId(req);
+    const user = await User.findById(userId).select("Email Name ProfileImageUrl");
+
+    if (user) {
+      return res.status(200).json({
+        IsSuccess: true,
+        UserDetails: user,
+      });
+    } else {
+      return res.status(422).json({
+        IsSuccess: false,
+        Errors: ["User does not exist"],
+      });
+    }
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
 const clearImage = (filePath: string) => {
   filePath = path.join(__dirname, "../../..", filePath);
   fs.unlink(filePath, (err) => console.log(err));

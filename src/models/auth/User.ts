@@ -17,7 +17,7 @@ export interface IUser extends mongoose.Document {
     Password: {type:String, required: true},
     ProjectsCreated: {type: [String], required: true},
     ProjectsInvolved: {type: [String], required: true},
-    ProfileImageUrl: {type:String, required: false},
+    ProfileImageUrl: {type:String, required: true},
     ProfileImageId: {type:String, required: false},
   });
   

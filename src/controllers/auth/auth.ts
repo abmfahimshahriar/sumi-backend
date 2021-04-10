@@ -5,6 +5,7 @@ import jsonwebtoken from "jsonwebtoken";
 import User from "../../models/auth/User";
 import dotenv from "dotenv";
 import { inputValidator } from "../../utility/validators/inputValidator";
+import { USER_DEFAULT_PROFILE_IMAGE_URL } from "../../utility/constants/userConstants";
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ export const signup = async (
         Password: hashedPw,
         ProjectsCreated: [],
         ProjectsInvolved: [],
+        ProfileImageUrl: USER_DEFAULT_PROFILE_IMAGE_URL,
       });
       const result = await user.save();
 
