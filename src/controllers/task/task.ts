@@ -1,3 +1,4 @@
+import { IInvolvedUser } from "./../../models/project/Project";
 import { Request, Response, NextFunction } from "express";
 import Sprint, { ITaskBucket } from "../../models/sprint/Sprint";
 import dotenv from "dotenv";
@@ -330,8 +331,12 @@ export const getTasks = async (
   const sprintId = req.params.sprintId;
   const sprint = await Sprint.findById(sprintId);
   if (sprint) {
-    const tempTaskBuckets = sprint.TaskBuckets.filter(item => item.TaskBucketId != sprint.EndBucket);
-    const endTaskBucket = sprint.TaskBuckets.find(item => item.TaskBucketId == sprint.EndBucket);
+    const tempTaskBuckets = sprint.TaskBuckets.filter(
+      (item) => item.TaskBucketId != sprint.EndBucket
+    );
+    const endTaskBucket = sprint.TaskBuckets.find(
+      (item) => item.TaskBucketId == sprint.EndBucket
+    );
     if (endTaskBucket) tempTaskBuckets.push(endTaskBucket);
     sprint.TaskBuckets = [...tempTaskBuckets];
     const project = await Project.findById(sprint.ProjectId);
@@ -615,6 +620,56 @@ export const getComments = async (
         Comments: comments,
       },
     });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+export const getUserList = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const projectId = req.body.ProjectId;
+
+  try {
+    const userId = getUserId(req);
+    const user = await User.findById(userId).select(
+      "Email Name ProfileImageUrl"
+    );
+
+    const project = await Project.findById(projectId);
+    if (project) {
+      const involvedUsers = project.InvolvedUsers;
+      const currentUser = involvedUsers.find((item) => item._id == userId);
+      if (!currentUser) {
+        return res.status(401).json({
+          IsSuccess: false,
+          Errors: ["You can not view involved under this project"],
+        });
+      }
+      const usersList:any[] = [];
+      for(let singleUser of involvedUsers) {
+        const user = await User.findById(singleUser._id).select(
+          "Email Name ProfileImageUrl"
+        );
+        usersList.push(user);
+      }
+      return res.status(200).json({
+        IsSuccess: true,
+        Result: {
+          UsersList: usersList,
+        },
+      });
+    } else {
+      return res.status(422).json({
+        IsSuccess: false,
+        Errors: ["No project found"],
+      });
+    }
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
