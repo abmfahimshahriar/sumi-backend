@@ -1,3 +1,4 @@
+import { IUser } from './../../models/auth/User';
 import { IInvolvedUser } from "./../../models/project/Project";
 import { Request, Response, NextFunction } from "express";
 import Sprint, { ITaskBucket } from "../../models/sprint/Sprint";
@@ -355,6 +356,7 @@ export const getTasks = async (
       return res.status(200).json({
         IsSuccess: true,
         Result: {
+          Project: project,
           Sprint: sprint,
           Tasks: tasks,
         },
@@ -651,12 +653,12 @@ export const getUserList = async (
           Errors: ["You can not view involved under this project"],
         });
       }
-      const usersList:any[] = [];
+      const usersList:IUser[] = [];
       for(let singleUser of involvedUsers) {
         const user = await User.findById(singleUser._id).select(
           "Email Name ProfileImageUrl"
         );
-        usersList.push(user);
+        if(user) usersList.push(user);
       }
       return res.status(200).json({
         IsSuccess: true,

@@ -123,6 +123,7 @@ export const getSprints = async (
     return res.status(200).json({
       IsSuccess: true,
       Result: {
+        Project: project,
         Sprints: sprints,
       },
     });
