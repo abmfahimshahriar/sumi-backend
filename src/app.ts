@@ -6,6 +6,7 @@ import projectRoutes from "./routes/project";
 import sprintRoutes from "./routes/sprint";
 import taskRoutes from "./routes/task";
 import userRoutes from "./routes/user";
+import notificationRoutes from "./routes/notification";
 
 import mongoose from "mongoose";
 import { HttpException } from "./exceptions/httpException";
@@ -60,6 +61,7 @@ app.use("/user", userRoutes);
 app.use("/project", projectRoutes);
 app.use("/sprint", sprintRoutes);
 app.use("/task", taskRoutes);
+app.use("/notification", notificationRoutes);
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Server running");

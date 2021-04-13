@@ -1,4 +1,5 @@
-import { IUser } from './../../models/auth/User';
+import { createNotification } from "./../notification/notification";
+import { IUser } from "./../../models/auth/User";
 import { IInvolvedUser } from "./../../models/project/Project";
 import { Request, Response, NextFunction } from "express";
 import Sprint, { ITaskBucket } from "../../models/sprint/Sprint";
@@ -111,6 +112,23 @@ export const createTask = async (
       const res2 = await sprint.save();
       // const res1 = updateSprintTotalStoryPoints(sprintId);
       // const res2 = updateProjectTotalStoryPoints(projectId);
+      if (userId != assignee._id) {
+        const createNoti = await createNotification(
+          userId,
+          assignee._id,
+          project,
+          sprint,
+          result,
+          "created task",
+          next
+        );
+        if (!createNoti) {
+          return res.status(422).json({
+            IsSuccess: false,
+            Errors: ["Could not create a notification"],
+          });
+        }
+      }
       if (res1 && res2) {
         return res.status(201).json({
           IsSuccess: true,
@@ -548,6 +566,24 @@ export const createComment = async (
     const result = await comment.save();
 
     if (result) {
+      if (userId != task.Assignee._id as string) {
+        const createNoti = await createNotification(
+          userId,
+          task.Assignee._id as string,
+          project,
+          sprint,
+          task,
+          "commented on",
+          next
+        );
+        if (!createNoti) {
+          return res.status(422).json({
+            IsSuccess: false,
+            Errors: ["Could not create a notification"],
+          });
+        }
+      }
+
       return res.status(201).json({
         IsSuccess: true,
         Result: {
@@ -609,7 +645,7 @@ export const getComments = async (
     if (!task) {
       return res.status(422).json({
         IsSuccess: false,
-        Errors: ["Such task does not exists."],
+        Errors: ["Such task does not exist."],
       });
     }
 
@@ -653,12 +689,12 @@ export const getUserList = async (
           Errors: ["You can not view involved under this project"],
         });
       }
-      const usersList:IUser[] = [];
-      for(let singleUser of involvedUsers) {
+      const usersList: IUser[] = [];
+      for (let singleUser of involvedUsers) {
         const user = await User.findById(singleUser._id).select(
           "Email Name ProfileImageUrl"
         );
-        if(user) usersList.push(user);
+        if (user) usersList.push(user);
       }
       return res.status(200).json({
         IsSuccess: true,
