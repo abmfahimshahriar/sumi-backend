@@ -1,4 +1,4 @@
-import { USER_NAME, USER_EMAIL, USER_PASSWORD } from './../../utility/constants/formValidationConstants';
+import { USER_NAME, USER_EMAIL, USER_PASSWORD, USER_NAME_MIN, USER_EMAIL_MIN, USER_PASSWORD_MIN } from './../../utility/constants/formValidationConstants';
 import { IUser } from "./../../models/auth/User";
 import express, { Request, Response, NextFunction } from "express";
 import bcryptjs from "bcryptjs";
@@ -168,21 +168,21 @@ const checkInputValidity = (name:string, email: string, password: Date) => {
       fieldValue: name,
       fieldName: "name",
       validations: ["required"],
-      minLength: 4,
+      minLength: USER_NAME_MIN,
       maxLength: USER_NAME,
     },
     {
       fieldValue: email,
       fieldName: "email",
       validations: ["required"],
-      minLength: 4,
+      minLength: USER_EMAIL_MIN,
       maxLength: USER_EMAIL,
     },
     {
       fieldValue: password,
       fieldName: "password",
       validations: ["required", "minLength", "maxLength"],
-      minLength: 4,
+      minLength: USER_PASSWORD_MIN,
       maxLength: USER_PASSWORD,
     },
   ];
