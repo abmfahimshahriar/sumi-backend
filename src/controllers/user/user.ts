@@ -91,7 +91,7 @@ export const getUserDetails = async (
   try {
     const userId = getUserId(req);
     const user = await User.findById(userId).select(
-      "Email Name ProfileImageUrl"
+      "Email Name ProfileImageUrl ProfileImageId"
     );
 
     if (user) {
