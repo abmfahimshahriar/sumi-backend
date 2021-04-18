@@ -9,6 +9,7 @@ export const authCheck = (req: Request, res: Response, next: NextFunction) => {
   if (!authHeader) {
     return res.status(422).json({
       IsSuccess: false,
+      TokenError: true,
       Errors: ["Couldn't find authentication header"],
     });
   }
@@ -19,12 +20,14 @@ export const authCheck = (req: Request, res: Response, next: NextFunction) => {
   } catch (err) {
     return res.status(422).json({
       IsSuccess: false,
+      TokenError: true,
       Errors: ["Couldn't verify token"],
     });
   }
   if (!decodedToken) {
     return res.status(422).json({
       IsSuccess: false,
+      TokenError: true,
       Errors: ["User is not authenticated"],
     });
   } else {
