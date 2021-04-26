@@ -23,13 +23,13 @@ export const signup = async (
     const userExists = await User.findOne({ Email: email });
 
     if (!userExists) {
-      const errorsObject = checkInputValidity(name, email, password);
-      if (errorsObject.hasError) {
-        return res.status(422).json({
-          IsSuccess: false,
-          Errors: errorsObject.errors,
-        });
-      }
+      // const errorsObject = checkInputValidity(name, email, password);
+      // if (errorsObject.hasError) {
+      //   return res.status(422).json({
+      //     IsSuccess: false,
+      //     Errors: errorsObject.errors,
+      //   });
+      // }
       const hashedPw = await bcryptjs.hash(
         password,
         parseInt(process.env.PASSWORD_SALT as string)

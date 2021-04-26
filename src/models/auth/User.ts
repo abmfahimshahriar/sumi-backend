@@ -12,9 +12,9 @@ export interface IUser extends mongoose.Document {
   };
   
   export const UserSchema = new mongoose.Schema({
-    Name: {type:String, required: true},
-    Email: {type:String, required: true},
-    Password: {type:String, required: true},
+    Name: {type:String, required: [true, "Name required"]},
+    Email: {type:String, required: [true, "Email required"]},
+    Password: {type:String, required: [true, "Password required"]},
     ProjectsCreated: {type: [String], required: true},
     ProjectsInvolved: {type: [String], required: true},
     ProfileImageUrl: {type:String, required: true},
