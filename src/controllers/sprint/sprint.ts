@@ -1,4 +1,4 @@
-import { ENTITY_TITLE, ENTITY_START_DATE, ENTITY_END_DATE, ENTITY_TITLE_MIN, ENTITY_START_DATE_MIN, ENTITY_END_DATE_MIN } from './../../utility/constants/formValidationConstants';
+import { ENTITY_TITLE_MAX, ENTITY_START_DATE, ENTITY_END_DATE, ENTITY_TITLE_MIN, ENTITY_START_DATE_MIN, ENTITY_END_DATE_MIN } from './../../utility/constants/formValidationConstants';
 import { Request, Response, NextFunction } from "express";
 import Sprint, { ITaskBucket } from "../../models/sprint/Sprint";
 import dotenv from "dotenv";
@@ -278,7 +278,7 @@ const checkInputValidity = (
       fieldName: "sprint name",
       validations: ["required"],
       minLength: ENTITY_TITLE_MIN,
-      maxLength: ENTITY_TITLE,
+      maxLength: ENTITY_TITLE_MAX,
     },
     {
       fieldValue: startDate,

@@ -1,4 +1,4 @@
-import { ENTITY_END_DATE, ENTITY_TITLE, ENTITY_TITLE_MIN, ENTITY_START_DATE_MIN, ENTITY_END_DATE_MIN } from './../../utility/constants/formValidationConstants';
+import { ENTITY_END_DATE, ENTITY_TITLE_MAX, ENTITY_TITLE_MIN, ENTITY_START_DATE_MIN, ENTITY_END_DATE_MIN } from './../../utility/constants/formValidationConstants';
 import { createNotification } from "./../notification/notification";
 import { IUser } from "./../../models/auth/User";
 import { IInvolvedUser } from "./../../models/project/Project";
@@ -736,7 +736,7 @@ const checkInputValidity = (
       fieldName: "sprint name",
       validations: ["required"],
       minLength: ENTITY_TITLE_MIN,
-      maxLength: ENTITY_TITLE,
+      maxLength: ENTITY_TITLE_MAX,
     },
     {
       fieldValue: startDate,

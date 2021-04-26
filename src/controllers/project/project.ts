@@ -1,4 +1,4 @@
-import { ENTITY_TITLE, ENTITY_START_DATE, ENTITY_END_DATE, ENTITY_TITLE_MIN, ENTITY_START_DATE_MIN, ENTITY_END_DATE_MIN } from './../../utility/constants/formValidationConstants';
+import { ENTITY_TITLE_MAX, ENTITY_START_DATE, ENTITY_END_DATE, ENTITY_TITLE_MIN, ENTITY_START_DATE_MIN, ENTITY_END_DATE_MIN } from './../../utility/constants/formValidationConstants';
 import { Request, Response, NextFunction } from "express";
 import Project, { IInvolvedUser } from "../../models/project/Project";
 import dotenv from "dotenv";
@@ -21,13 +21,13 @@ export const createProject = async (
     const userId = getUserId(req);
     const user = await User.findById(userId).select("Email Name");
 
-    const errorsObject = checkInputValidity(projectName, startDate, endDate);
-    if (errorsObject.hasError) {
-      return res.status(422).json({
-        IsSuccess: false,
-        Errors: errorsObject.errors,
-      });
-    }
+    // const errorsObject = checkInputValidity(projectName, startDate, endDate);
+    // if (errorsObject.hasError) {
+    //   return res.status(422).json({
+    //     IsSuccess: false,
+    //     Errors: errorsObject.errors,
+    //   });
+    // }
     const sameName = await Project.find({
       ProjectName: projectName,
       CreatedBy: userId,
@@ -289,7 +289,7 @@ const checkInputValidity = (
       fieldName: "project name",
       validations: ["required"],
       minLength: ENTITY_TITLE_MIN,
-      maxLength: ENTITY_TITLE,
+      maxLength: ENTITY_TITLE_MAX,
     },
     {
       fieldValue: startDate,
